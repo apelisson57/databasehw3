@@ -1,23 +1,27 @@
-create index index_name1 on teams (yearID,teamID(6));
-create index index_name2 on salaries (yearID,teamID(6));
+-- SET PROFILING = 1;
 
-create view teamSalaries
- AS
-	SELECT
-	yearID,
-	teamID,
-	sum(salary) teamSalary
-	FROM salaries
-	GROUP BY yearId, teamID;
+-- CREATE INDEX team_index ON teams (yearID,teamID(6));
+-- CREATE INDEX salary_index ON salaries (yearID,teamID(6));
 
-create view total as
-	SELECT
-	teams.yearID as yearID,
-	teamSalary , WSWin
-	FROM teams, teamSalaries
-	WHERE
-	teams.yearID = teamSalaries.yearID AND
-	teams.teamID = teamSalaries.teamID;
+DROP VIEW IF EXISTS teamSalaries;
+DROP VIEW IF EXISTS total;
+
+CREATE VIEW teamSalaries AS
+SELECT
+yearID,
+teamID,
+sum(salary) teamSalary
+FROM salaries
+GROUP BY yearId, teamID;
+
+create view total AS
+SELECT
+teams.yearID AS yearID,
+teamSalary , WSWin
+FROM teams, teamSalaries
+WHERE
+teams.yearID = teamSalaries.yearID AND
+teams.teamID = teamSalaries.teamID;
 
 
 
@@ -25,11 +29,9 @@ create view total as
 SELECT winningSalaries.yearID as yearID, winningSalaries.teamSalary AS "Winning Team
 Salary", nonWinningSalaries.nonWinningSalary AS "Average Team Salary"
 FROM (
-SELECT
-total.yearID,
-teamSalary FROM
-total where
-total.WSWin = 'Y'
+SELECT total.yearID, teamSalary
+FROM total
+WHERE total.WSWin = 'Y'
 ) winningSalaries, (
 SELECT total.yearID, AVG(teamSalary) AS nonWinningSalary
 FROM total
@@ -37,3 +39,8 @@ GROUP BY total.yearID
 ) nonWinningSalaries
 WHERE winningSalaries.yearID = nonWinningSalaries.yearID
 ;
+
+-- DROP INDEX team_index ON teams;
+-- DROP INDEX salary_index ON salaries;
+
+-- SHOW PROFILES;

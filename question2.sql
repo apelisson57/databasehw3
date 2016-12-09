@@ -1,36 +1,16 @@
-
-SET PROFILING = 1;
-
-
-
-DROP VIEW IF EXISTS tallPlayers;
-DROP VIEW IF EXISTS moreThanFiveGames;
-
-CREATE VIEW tallPlayers AS
-SELECT playerID, nameFirst, nameLast
-FROM master
-WHERE height > 71;
-
-CREATE VIEW moreThanFiveGames AS
-SELECT playerID, POS, G
-FROM fielding
-WHERE G > 5;
-
--- CREATE INDEX player_key ON master(playerID);
-
+-- SET PROFILING = 1;
 
 SELECT nameFirst, nameLast, pos, games
-FROM tallPlayers
-INNER JOIN (
+FROM master join (
 SELECT
 playerID,
 POS,
 AVG(G) as games
-FROM moreThanFiveGames
+FROM fielding
+WHERE G > 5
 GROUP BY playerID, POS
 HAVING avg(g) > 15
-) positions ON (tallPlayers.playerID = positions.playerID);
+) positions ON (master.playerID = positions.playerID)
+WHERE height > 71;
 
--- DROP INDEX player_key ON master;
-
-SHOW PROFILES;
+-- SHOW PROFILES;

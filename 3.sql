@@ -1,17 +1,19 @@
-CREATE INDEX index_name3
-ON batting (playerID(6));
-
-CREATE INDEX index_name4
-ON master (playerID(6));
-
-create view special_master
-	as select playerID, nameFirst, nameLast
-	from master 
-	where birthYear > 1970 and nameLast < 'N';
+-- SET PROFILING = 1;
 
 
-SELECT nameFirst, nameLast, totalAtBats, totalRuns, totalHits
-FROM special_master JOIN (
+CREATE INDEX batting_index ON batting (playerID(6));
+
+CREATE INDEX player_index2 ON master (playerID(6));
+
+DROP VIEW IF EXISTS special_master;
+DROP VIEW IF EXISTS aggregateBatting;
+
+CREATE VIEW special_master AS
+SELECT playerID, nameFirst, nameLast
+FROM master 
+WHERE birthYear > 1970 AND nameLast < 'N';
+
+CREATE VIEW aggregateBatting AS
 SELECT
 playerID,
 sum(ab) totalAtBats,
@@ -19,6 +21,14 @@ sum(r) totalRuns,
 sum(h) totalHits
 FROM batting
 GROUP BY playerID
-) aggregateBatting ON (special_master.playerID = aggregateBatting.playerID)
-WHERE totalRuns > 100
+HAVING totalRuns > 100;
+
+SELECT nameFirst, nameLast, totalAtBats, totalRuns, totalHits
+FROM special_master 
+INNER JOIN aggregateBatting ON (special_master.playerID = aggregateBatting.playerID)
 ORDER BY nameLast;
+
+DROP INDEX batting_index ON batting;
+DROP INDEX player_index2 ON master;
+
+-- SHOW PROFILES;
