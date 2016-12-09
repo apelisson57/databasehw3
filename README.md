@@ -1,4 +1,3 @@
-
 Qihua Hao
 Aidan Pelisson
 Yuvraj Singh Sidhu
@@ -36,6 +35,9 @@ Analysis After:
 
 Average runtime = 0.386046868 seconds
 
+///////////////////////////////
+strategy: We add two indexes on teams and salaries to accerlate selections. We also create two views to avoid generating same relaion twice in the original query.
+
 Question 2
 
 Analysis Before:
@@ -52,6 +54,9 @@ Analysis After:
 
 
 Average runtime = 1.063896438 seconds
+
+///////////////////////////////
+strategy: We add index on master relation to accerlate selections. We also create two views to reduce number of tuples by adding conditions like "hight>71" before join two relations.
 
 Question 3:
 
@@ -70,6 +75,9 @@ Analysis After:
 
 
 Average runtime = 0.620640808 seconds
+
+///////////////////////////////
+strategy: We add indexes on primary key of master and batting relations to accerlate selections. We also create a view to reduce number of tuples by adding conditions like "birthYear > 1970 AND nameLast < 'N' " before join two relations.
 
 Explanation of our strategy:
 Our primary strategy was to use views wherever possible in order to increase performance. We mainly used them to replace WHERE clauses. We created a view that took only tuples with the specific columnswe needed, and which satisfied the condition in the where clause. This pushed selection down on the plan tree. We then performed any aggregatefunctions or joins on those tuples. We also used indices on many of the primary keys, in order to reduce the number of unnecessary rows that we were dealing with. Finally, we used views to eliminate any redundancies in our code. For example, in problem 1, we replaced a subquery used multiple times throughout the query with a view that did the same thing.
