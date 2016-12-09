@@ -1,0 +1,17 @@
+1.We create indexes on team and salaries table to speed up selection
+
+2.There are redundant operations:
+	FROM (
+		SELECT
+		teams.yearID,
+		teamSalary AS winningSalary
+		FROM teams, (
+		SELECT
+		yearID,
+		teamID,
+		sum(salary) teamSalary
+		FROM salaries
+		GROUP BY yearId, teamID
+		) teamSalaries;
+The subquery was called twice. We created a view for this so that it didn't have to be generated twice.
+
